@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Costafy.Move Planner</title>
+  <title>Costafy.move Planner</title>
   <style>
     :root {
       --bg: #0f172a;
@@ -40,19 +40,19 @@
 
     h1 {
       margin: 0 0 6px;
-      font-size: 28px;
-      letter-spacing: -0.03em;
+      font-size: 30px;
+      letter-spacing: -0.04em;
     }
 
     header p {
       margin: 0;
       color: var(--muted);
-      max-width: 900px;
+      max-width: 980px;
     }
 
     main {
       display: grid;
-      grid-template-columns: 380px 1fr;
+      grid-template-columns: 410px 1fr;
       gap: 20px;
       padding: 20px 32px 32px;
     }
@@ -75,6 +75,10 @@
       grid-template-columns: 1fr 1fr;
       gap: 10px;
       margin-bottom: 14px;
+    }
+
+    .form-grid.three {
+      grid-template-columns: 1fr 1fr 1fr;
     }
 
     label {
@@ -126,7 +130,7 @@
       flex-direction: column;
       gap: 10px;
       margin-top: 12px;
-      max-height: 310px;
+      max-height: 330px;
       overflow: auto;
       padding-right: 4px;
     }
@@ -162,13 +166,11 @@
       font-size: 12px;
     }
 
-    .workspace {
-      min-width: 0;
-    }
+    .workspace { min-width: 0; }
 
     .stats {
       display: grid;
-      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      grid-template-columns: repeat(5, minmax(120px, 1fr));
       gap: 10px;
       margin-bottom: 14px;
     }
@@ -181,7 +183,7 @@
     }
 
     .stat .value {
-      font-size: 20px;
+      font-size: 19px;
       font-weight: 800;
     }
 
@@ -208,7 +210,7 @@
         linear-gradient(rgba(148,163,184,.14) 1px, transparent 1px),
         linear-gradient(90deg, rgba(148,163,184,.14) 1px, transparent 1px),
         #e5e7eb;
-      background-size: 25px 25px;
+      background-size: 10px 10px;
       border: 4px solid #64748b;
       border-radius: 12px;
       box-shadow: inset 0 0 0 2px rgba(15,23,42,.25), 0 18px 50px rgba(0,0,0,.28);
@@ -253,8 +255,20 @@
     }
 
     .placed-box.invalid {
-      background: rgba(239, 68, 68, .78);
+      background: rgba(239, 68, 68, .78) !important;
       color: white;
+    }
+
+    .stack-badge {
+      position: absolute;
+      right: 4px;
+      bottom: 4px;
+      background: rgba(15,23,42,.82);
+      color: white;
+      border-radius: 999px;
+      font-size: 11px;
+      padding: 2px 6px;
+      line-height: 1.2;
     }
 
     .legend {
@@ -283,7 +297,7 @@
       margin: 16px 0;
     }
 
-    @media (max-width: 1050px) {
+    @media (max-width: 1150px) {
       main { grid-template-columns: 1fr; padding: 16px; }
       header { padding: 20px 16px 12px; }
       .stats { grid-template-columns: repeat(2, 1fr); }
@@ -292,14 +306,14 @@
 </head>
 <body>
   <header>
-    <h1>Costafy.Move Planner</h1>
-    <p>Plane die Ladefläche deines Anhängers in der Draufsicht. Kartons können manuell per Drag & Drop platziert oder automatisch platzsparend angeordnet werden.</p>
+    <h1>Costafy.move Planner</h1>
+    <p>Plane Anhänger, Transporter oder Ladeflächen für deinen Umzug. Pakete können manuell per Drag & Drop gesetzt oder automatisch mit Höhen- und Stapel-Logik optimiert werden.</p>
   </header>
 
   <main>
     <section class="panel">
-      <h2>1. Anhänger einstellen</h2>
-      <div class="form-grid">
+      <h2>1. Ladefläche einstellen</h2>
+      <div class="form-grid three">
         <div>
           <label for="trailerLength">Länge innen in m</label>
           <input id="trailerLength" type="number" min="0.5" step="0.1" value="4.0" />
@@ -307,6 +321,10 @@
         <div>
           <label for="trailerWidth">Breite innen in m</label>
           <input id="trailerWidth" type="number" min="0.5" step="0.1" value="2.5" />
+        </div>
+        <div>
+          <label for="trailerHeight">Höhe innen in m</label>
+          <input id="trailerHeight" type="number" min="0.5" step="0.1" value="1.8" />
         </div>
       </div>
       <button onclick="updateTrailer()">Ladefläche aktualisieren</button>
@@ -331,11 +349,22 @@
           <label for="boxWidth">Breite in cm</label>
           <input id="boxWidth" type="number" min="1" step="1" value="40" />
         </div>
+        <div>
+          <label for="boxHeight">Höhe in cm</label>
+          <input id="boxHeight" type="number" min="1" step="1" value="35" />
+        </div>
+        <div>
+          <label for="boxStackable">Stapelbar?</label>
+          <select id="boxStackable">
+            <option value="yes" selected>Ja</option>
+            <option value="no">Nein</option>
+          </select>
+        </div>
       </div>
       <button onclick="addPackageTemplate()">Pakettyp hinzufügen</button>
 
       <div class="hint">
-        Tipp: Für die Draufsicht zählen erstmal Länge und Breite. Höhe/Gewicht könnte man als nächste Ausbaustufe für echte 3D-Beladung ergänzen.
+        Auto-Pack nutzt jetzt Zentimeter-genaue Kandidatenpositionen statt grobem 25-cm-Raster. Stapelbare Kartons werden auf gleicher Grundfläche bis zur maximalen Innenhöhe gestapelt.
       </div>
 
       <div class="divider"></div>
@@ -344,7 +373,7 @@
       <div id="packageList" class="package-list"></div>
 
       <div class="button-row">
-        <button class="success" onclick="autoPack()">Auto-Pack</button>
+        <button class="success" onclick="autoPack()">Auto-Pack 3D</button>
         <button class="secondary" onclick="clearPlaced()">Fläche leeren</button>
       </div>
       <div class="button-row">
@@ -355,19 +384,20 @@
 
     <section class="workspace">
       <div class="stats">
-        <div class="stat"><div id="trailerSizeStat" class="value">4.0 × 2.5 m</div><div class="label">Innenmaß</div></div>
-        <div class="stat"><div id="areaStat" class="value">10.00 m²</div><div class="label">Ladefläche</div></div>
-        <div class="stat"><div id="usedStat" class="value">0.00 m²</div><div class="label">Belegt</div></div>
-        <div class="stat"><div id="usageStat" class="value">0%</div><div class="label">Auslastung</div></div>
+        <div class="stat"><div id="trailerSizeStat" class="value">4.0 × 2.5 × 1.8 m</div><div class="label">Innenmaß</div></div>
+        <div class="stat"><div id="volumeStat" class="value">18.00 m³</div><div class="label">Ladevolumen</div></div>
+        <div class="stat"><div id="floorStat" class="value">10.00 m²</div><div class="label">Bodenfläche</div></div>
+        <div class="stat"><div id="usedStat" class="value">0.00 m³</div><div class="label">Volumen belegt</div></div>
+        <div class="stat"><div id="usageStat" class="value">0%</div><div class="label">Volumen-Auslastung</div></div>
       </div>
 
       <div class="canvas-wrap">
         <div id="trailer" ondragover="event.preventDefault()" ondrop="dropOnTrailer(event)">
-          <div class="trailer-label">Ladefläche</div>
+          <div class="trailer-label">Draufsicht Ladefläche</div>
         </div>
         <div class="legend">
-          <span>Raster: 25 cm</span>
-          <span>Drag & Drop: Pakettyp links greifen und auf die Fläche ziehen</span>
+          <span>Rasteranzeige: 10 cm</span>
+          <span>Auto-Pack: zentimetergenaue 2D-Positionierung + Stapelhöhe</span>
           <span>Klick auf Paket: auswählen</span>
         </div>
       </div>
@@ -375,9 +405,8 @@
   </main>
 
   <script>
-    const SCALE = 100; // 1 m = 100 px
-    const GRID_CM = 25;
-    const GRID_PX = GRID_CM; // weil 100 cm = 100 px
+    const SCALE = 100; // 1 m = 100 px, also 1 cm = 1 px
+    const SNAP_CM = 5; // manuelles Verschieben rastet auf 5 cm, Auto-Pack arbeitet mit echten Kantenpositionen
 
     let packageTemplates = [];
     let placedBoxes = [];
@@ -398,19 +427,24 @@
       return {
         length: Number(document.getElementById('trailerLength').value) || 4,
         width: Number(document.getElementById('trailerWidth').value) || 2.5,
+        height: Number(document.getElementById('trailerHeight').value) || 1.8,
       };
     }
 
-    function trailerPx() {
+    function trailerCm() {
       const t = trailerMeters();
-      return { width: t.length * SCALE, height: t.width * SCALE };
+      return {
+        length: Math.round(t.length * 100),
+        width: Math.round(t.width * 100),
+        height: Math.round(t.height * 100),
+      };
     }
 
     function updateTrailer() {
       const trailer = document.getElementById('trailer');
-      const tpx = trailerPx();
-      trailer.style.width = `${tpx.width}px`;
-      trailer.style.height = `${tpx.height}px`;
+      const t = trailerCm();
+      trailer.style.width = `${t.length}px`;
+      trailer.style.height = `${t.width}px`;
       validateAllBoxes();
       renderPlacedBoxes();
       updateStats();
@@ -421,6 +455,8 @@
       const count = Math.max(1, Number(document.getElementById('boxCount').value) || 1);
       const lengthCm = Math.max(1, Number(document.getElementById('boxLength').value) || 1);
       const widthCm = Math.max(1, Number(document.getElementById('boxWidth').value) || 1);
+      const heightCm = Math.max(1, Number(document.getElementById('boxHeight').value) || 1);
+      const stackable = document.getElementById('boxStackable').value === 'yes';
       const id = crypto.randomUUID();
 
       packageTemplates.push({
@@ -429,9 +465,12 @@
         count,
         lengthCm,
         widthCm,
+        heightCm,
+        stackable,
         color: colors[packageTemplates.length % colors.length]
       });
       renderPackageList();
+      updateStats();
     }
 
     function renderPackageList() {
@@ -448,7 +487,7 @@
         div.innerHTML = `
           <div>
             <div class="package-title">${escapeHtml(pkg.name)} × ${pkg.count}</div>
-            <div class="package-meta">${pkg.lengthCm} × ${pkg.widthCm} cm</div>
+            <div class="package-meta">${pkg.lengthCm} × ${pkg.widthCm} × ${pkg.heightCm} cm · ${pkg.stackable ? 'stapelbar' : 'nicht stapelbar'}</div>
           </div>
           <button class="small-button danger" onclick="removeTemplate('${pkg.id}')">X</button>
         `;
@@ -459,6 +498,7 @@
     function removeTemplate(id) {
       packageTemplates = packageTemplates.filter(p => p.id !== id);
       renderPackageList();
+      updateStats();
     }
 
     function dropOnTrailer(event) {
@@ -477,6 +517,10 @@
         name: pkg.name,
         lengthCm: pkg.lengthCm,
         widthCm: pkg.widthCm,
+        heightCm: pkg.heightCm,
+        stackable: pkg.stackable,
+        quantity: 1,
+        stackHeightCm: pkg.heightCm,
         x,
         y,
         color: pkg.color,
@@ -485,10 +529,7 @@
     }
 
     function placeBox(data) {
-      const box = {
-        id: crypto.randomUUID(),
-        ...data,
-      };
+      const box = { id: crypto.randomUUID(), ...data };
       placedBoxes.push(box);
       selectedId = box.id;
       validateAllBoxes();
@@ -507,10 +548,16 @@
         if (box.invalid) el.classList.add('invalid');
         el.style.left = `${box.x}px`;
         el.style.top = `${box.y}px`;
-        el.style.width = `${boxWidthPx(box)}px`;
-        el.style.height = `${boxHeightPx(box)}px`;
+        el.style.width = `${boxWidthCm(box)}px`;
+        el.style.height = `${boxDepthCm(box)}px`;
         el.style.background = box.invalid ? 'rgba(239,68,68,.78)' : box.color;
-        el.innerHTML = `${escapeHtml(box.name)}<br>${box.rotated ? box.widthCm + '×' + box.lengthCm : box.lengthCm + '×' + box.widthCm} cm`;
+        el.innerHTML = `
+          <div>
+            ${escapeHtml(box.name)}<br>
+            ${boxWidthCm(box)}×${boxDepthCm(box)}×${box.stackHeightCm} cm
+          </div>
+          ${box.quantity > 1 ? `<span class="stack-badge">${box.quantity}×</span>` : ''}
+        `;
 
         el.addEventListener('mousedown', (event) => startMove(event, box.id));
         el.addEventListener('click', (event) => {
@@ -585,112 +632,171 @@
     }
 
     function autoPack() {
-      const items = [];
-      packageTemplates.forEach(pkg => {
-        for (let i = 0; i < pkg.count; i++) {
-          items.push({ ...pkg });
-        }
-      });
-
-      items.sort((a, b) => (b.lengthCm * b.widthCm) - (a.lengthCm * a.widthCm));
-
-      const tpx = trailerPx();
-      const packed = [];
+      const t = trailerCm();
       const unpacked = [];
+      const stacks = [];
 
-      for (const item of items) {
-        const candidates = [
-          { rotated: false, w: item.lengthCm, h: item.widthCm },
-          { rotated: true, w: item.widthCm, h: item.lengthCm },
-        ];
+      const itemGroups = packageTemplates
+        .map(pkg => ({ ...pkg, remaining: pkg.count }))
+        .sort((a, b) => {
+          const av = a.lengthCm * a.widthCm * a.heightCm;
+          const bv = b.lengthCm * b.widthCm * b.heightCm;
+          return bv - av;
+        });
 
-        let placed = false;
+      for (const item of itemGroups) {
+        while (item.remaining > 0) {
+          const stackQty = item.stackable ? Math.max(1, Math.min(item.remaining, Math.floor(t.height / item.heightCm))) : 1;
 
-        for (let y = 0; y <= tpx.height && !placed; y += GRID_PX) {
-          for (let x = 0; x <= tpx.width && !placed; x += GRID_PX) {
-            for (const c of candidates) {
-              const candidate = {
-                id: crypto.randomUUID(),
-                templateId: item.id,
-                name: item.name,
-                lengthCm: item.lengthCm,
-                widthCm: item.widthCm,
-                x,
-                y,
-                color: item.color,
-                rotated: c.rotated,
-              };
-              if (fits(candidate, packed, tpx)) {
-                packed.push(candidate);
-                placed = true;
-                break;
-              }
-            }
+          const stack = {
+            id: crypto.randomUUID(),
+            templateId: item.id,
+            name: item.name,
+            lengthCm: item.lengthCm,
+            widthCm: item.widthCm,
+            heightCm: item.heightCm,
+            stackable: item.stackable,
+            quantity: stackQty,
+            stackHeightCm: stackQty * item.heightCm,
+            color: item.color,
+            rotated: false,
+            x: 0,
+            y: 0,
+          };
+
+          const pos = findBestPosition(stack, stacks, t);
+          if (!pos) {
+            unpacked.push({ ...item, count: item.remaining });
+            break;
           }
-        }
 
-        if (!placed) unpacked.push(item);
+          stack.x = pos.x;
+          stack.y = pos.y;
+          stack.rotated = pos.rotated;
+          stacks.push(stack);
+          item.remaining -= stackQty;
+        }
       }
 
-      placedBoxes = packed;
+      placedBoxes = stacks;
       selectedId = null;
       validateAllBoxes();
       renderPlacedBoxes();
       updateStats();
 
-      if (unpacked.length) {
-        alert(`${unpacked.length} Paket(e) konnten nicht platziert werden. Ladefläche ist rechnerisch voll oder die Maße passen nicht.`);
+      const missing = unpacked.reduce((sum, item) => sum + item.count, 0);
+      if (missing > 0) {
+        alert(`${missing} Paket(e) konnten nicht platziert werden. Entweder ist die Ladefläche, Höhe oder das Volumen nicht ausreichend.`);
       }
     }
 
-    function fits(candidate, boxes, tpx) {
-      const cw = boxWidthPx(candidate);
-      const ch = boxHeightPx(candidate);
+    function findBestPosition(candidate, existing, trailer) {
+      const rotations = [false, true];
+      let best = null;
 
-      if (candidate.x < 0 || candidate.y < 0 || candidate.x + cw > tpx.width || candidate.y + ch > tpx.height) {
-        return false;
+      for (const rotated of rotations) {
+        candidate.rotated = rotated;
+        const w = boxWidthCm(candidate);
+        const d = boxDepthCm(candidate);
+
+        if (w > trailer.length || d > trailer.width || candidate.stackHeightCm > trailer.height) continue;
+
+        const xs = uniqueSorted([0, ...existing.map(b => b.x + boxWidthCm(b))]);
+        const ys = uniqueSorted([0, ...existing.map(b => b.y + boxDepthCm(b))]);
+
+        for (const y of ys) {
+          for (const x of xs) {
+            const test = { ...candidate, x, y, rotated };
+            if (!fits(test, existing, trailer)) continue;
+
+            const score = scorePlacement(test, existing, trailer);
+            if (!best || score < best.score) {
+              best = { x, y, rotated, score };
+            }
+          }
+        }
       }
+
+      return best;
+    }
+
+    function scorePlacement(box, existing, trailer) {
+      const right = box.x + boxWidthCm(box);
+      const bottom = box.y + boxDepthCm(box);
+      const usedBoundingArea = right * bottom;
+      const edgeBonus = (box.x === 0 ? -5000 : 0) + (box.y === 0 ? -5000 : 0);
+      const contactBonus = contactLength(box, existing) * -20;
+      return usedBoundingArea + right * 3 + bottom * 2 + edgeBonus + contactBonus;
+    }
+
+    function contactLength(box, existing) {
+      let contact = 0;
+      for (const other of existing) {
+        if (box.x === other.x + boxWidthCm(other) || other.x === box.x + boxWidthCm(box)) {
+          const overlapY = Math.max(0, Math.min(box.y + boxDepthCm(box), other.y + boxDepthCm(other)) - Math.max(box.y, other.y));
+          contact += overlapY;
+        }
+        if (box.y === other.y + boxDepthCm(other) || other.y === box.y + boxDepthCm(box)) {
+          const overlapX = Math.max(0, Math.min(box.x + boxWidthCm(box), other.x + boxWidthCm(other)) - Math.max(box.x, other.x));
+          contact += overlapX;
+        }
+      }
+      return contact;
+    }
+
+    function fits(candidate, boxes, trailer) {
+      const w = boxWidthCm(candidate);
+      const d = boxDepthCm(candidate);
+
+      if (candidate.x < 0 || candidate.y < 0 || candidate.x + w > trailer.length || candidate.y + d > trailer.width) return false;
+      if (candidate.stackHeightCm > trailer.height) return false;
 
       return !boxes.some(other => overlaps(candidate, other));
     }
 
     function validateAllBoxes() {
-      const tpx = trailerPx();
+      const t = trailerCm();
       placedBoxes.forEach(box => {
-        box.invalid = !fits(box, placedBoxes.filter(b => b.id !== box.id), tpx);
+        box.invalid = !fits(box, placedBoxes.filter(b => b.id !== box.id), t);
       });
     }
 
     function overlaps(a, b) {
       return !(
-        a.x + boxWidthPx(a) <= b.x ||
-        b.x + boxWidthPx(b) <= a.x ||
-        a.y + boxHeightPx(a) <= b.y ||
-        b.y + boxHeightPx(b) <= a.y
+        a.x + boxWidthCm(a) <= b.x ||
+        b.x + boxWidthCm(b) <= a.x ||
+        a.y + boxDepthCm(a) <= b.y ||
+        b.y + boxDepthCm(b) <= a.y
       );
     }
 
-    function boxWidthPx(box) {
+    function boxWidthCm(box) {
       return box.rotated ? box.widthCm : box.lengthCm;
     }
 
-    function boxHeightPx(box) {
+    function boxDepthCm(box) {
       return box.rotated ? box.lengthCm : box.widthCm;
     }
 
     function snap(value) {
-      return Math.max(0, Math.round(value / GRID_PX) * GRID_PX);
+      return Math.max(0, Math.round(value / SNAP_CM) * SNAP_CM);
+    }
+
+    function uniqueSorted(values) {
+      return [...new Set(values.map(v => Math.round(v)))].filter(v => v >= 0).sort((a, b) => a - b);
     }
 
     function updateStats() {
       const t = trailerMeters();
-      const totalArea = t.length * t.width;
-      const usedArea = placedBoxes.reduce((sum, b) => sum + (b.lengthCm * b.widthCm / 10000), 0);
-      const usage = totalArea > 0 ? Math.round((usedArea / totalArea) * 100) : 0;
+      const floorArea = t.length * t.width;
+      const totalVolume = t.length * t.width * t.height;
+      const usedVolume = placedBoxes.reduce((sum, b) => sum + ((b.lengthCm * b.widthCm * b.heightCm * b.quantity) / 1000000), 0);
+      const usage = totalVolume > 0 ? Math.round((usedVolume / totalVolume) * 100) : 0;
 
-      document.getElementById('trailerSizeStat').textContent = `${t.length.toFixed(1)} × ${t.width.toFixed(1)} m`;
-      document.getElementById('areaStat').textContent = `${totalArea.toFixed(2)} m²`;
-      document.getElementById('usedStat').textContent = `${usedArea.toFixed(2)} m²`;
+      document.getElementById('trailerSizeStat').textContent = `${t.length.toFixed(1)} × ${t.width.toFixed(1)} × ${t.height.toFixed(1)} m`;
+      document.getElementById('volumeStat').textContent = `${totalVolume.toFixed(2)} m³`;
+      document.getElementById('floorStat').textContent = `${floorArea.toFixed(2)} m²`;
+      document.getElementById('usedStat').textContent = `${usedVolume.toFixed(2)} m³`;
       document.getElementById('usageStat').textContent = `${usage}%`;
     }
 
@@ -703,22 +809,857 @@
         .replaceAll("'", '&#039;');
     }
 
-    addPackageTemplate();
-    document.getElementById('boxName').value = 'Großer Karton';
-    document.getElementById('boxLength').value = 80;
-    document.getElementById('boxWidth').value = 60;
-    document.getElementById('boxCount').value = 2;
-    addPackageTemplate();
-    document.getElementById('boxName').value = 'Kleines Paket';
-    document.getElementById('boxLength').value = 40;
-    document.getElementById('boxWidth').value = 30;
-    document.getElementById('boxCount').value = 4;
-    addPackageTemplate();
-    document.getElementById('boxName').value = 'Umzugskarton';
-    document.getElementById('boxLength').value = 60;
-    document.getElementById('boxWidth').value = 40;
-    document.getElementById('boxCount').value = 1;
-    updateTrailer();
+    function seedDemoData() {
+      packageTemplates = [];
+      packageTemplates.push({
+        id: crypto.randomUUID(), name: 'Umzugskarton', count: 12,
+        lengthCm: 60, widthCm: 40, heightCm: 35, stackable: true, color: colors[0]
+      });
+      packageTemplates.push({
+        id: crypto.randomUUID(), name: 'Großer Karton', count: 4,
+        lengthCm: 80, widthCm: 60, heightCm: 50, stackable: true, color: colors[1]
+      });
+      packageTemplates.push({
+        id: crypto.randomUUID(), name: 'Nicht stapelbar', count: 2,
+        lengthCm: 100, widthCm: 50, heightCm: 60, stackable: false, color: colors[2]
+      });
+      renderPackageList();
+      updateTrailer();
+    }
+
+    seedDemoData();
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Costafy.move Planner</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #38bdf8;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --border: #334155;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #020617, #0f172a);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 24px 32px 12px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.95);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(12px);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 30px;
+      letter-spacing: -0.04em;
+    }
+
+    header p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 980px;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 410px 1fr;
+      gap: 20px;
+      padding: 20px 32px 32px;
+    }
+
+    .panel {
+      background: rgba(17, 24, 39, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 16px 40px rgba(0,0,0,.25);
+    }
+
+    .panel h2 {
+      font-size: 18px;
+      margin: 0 0 14px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .form-grid.three {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+
+    input, select, button {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #020617;
+      color: var(--text);
+      padding: 10px 11px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(56,189,248,.18);
+    }
+
+    button {
+      cursor: pointer;
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      border: none;
+      font-weight: 700;
+      transition: transform .1s ease, opacity .1s ease;
+    }
+
+    button:hover { opacity: .95; transform: translateY(-1px); }
+    button.secondary { background: #334155; }
+    button.danger { background: #991b1b; }
+    button.success { background: #166534; }
+    button.warning { background: #92400e; }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .package-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
+      max-height: 330px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .package-template {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      cursor: grab;
+    }
+
+    .package-template:active { cursor: grabbing; }
+
+    .package-title {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .package-meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .small-button {
+      width: auto;
+      padding: 7px 9px;
+      font-size: 12px;
+    }
+
+    .workspace { min-width: 0; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(120px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .stat {
+      background: rgba(17,24,39,.85);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    .stat .value {
+      font-size: 19px;
+      font-weight: 800;
+    }
+
+    .stat .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .canvas-wrap {
+      width: 100%;
+      overflow: auto;
+      background: rgba(2,6,23,.6);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      min-height: 620px;
+    }
+
+    #trailer {
+      position: relative;
+      margin: 0 auto;
+      background:
+        linear-gradient(rgba(148,163,184,.14) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148,163,184,.14) 1px, transparent 1px),
+        #e5e7eb;
+      background-size: 10px 10px;
+      border: 4px solid #64748b;
+      border-radius: 12px;
+      box-shadow: inset 0 0 0 2px rgba(15,23,42,.25), 0 18px 50px rgba(0,0,0,.28);
+      color: #111827;
+      transition: width .2s ease, height .2s ease;
+    }
+
+    .trailer-label {
+      position: absolute;
+      left: 10px;
+      top: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      color: rgba(15,23,42,.55);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .placed-box {
+      position: absolute;
+      border: 2px solid rgba(15,23,42,.5);
+      border-radius: 8px;
+      background: rgba(56, 189, 248, 0.78);
+      color: #082f49;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 4px;
+      user-select: none;
+      cursor: move;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(15,23,42,.18);
+    }
+
+    .placed-box.selected {
+      outline: 3px solid var(--warning);
+      outline-offset: 2px;
+      z-index: 20;
+    }
+
+    .placed-box.invalid {
+      background: rgba(239, 68, 68, .78) !important;
+      color: white;
+    }
+
+    .stack-badge {
+      position: absolute;
+      right: 4px;
+      bottom: 4px;
+      background: rgba(15,23,42,.82);
+      color: white;
+      border-radius: 999px;
+      font-size: 11px;
+      padding: 2px 6px;
+      line-height: 1.2;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      margin: 10px 0 0;
+    }
+
+    .hint {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(56,189,248,.09);
+      border: 1px solid rgba(56,189,248,.22);
+      color: #bae6fd;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    @media (max-width: 1150px) {
+      main { grid-template-columns: 1fr; padding: 16px; }
+      header { padding: 20px 16px 12px; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Costafy.move Planner</h1>
+    <p>Plane Anhänger, Transporter oder Ladeflächen für deinen Umzug. Pakete können manuell per Drag & Drop gesetzt oder automatisch mit Höhen- und Stapel-Logik optimiert werden.</p>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>1. Ladefläche einstellen</h2>
+      <div class="form-grid three">
+        <div>
+          <label for="trailerLength">Länge innen in m</label>
+          <input id="trailerLength" type="number" min="0.5" step="0.1" value="4.0" />
+        </div>
+        <div>
+          <label for="trailerWidth">Breite innen in m</label>
+          <input id="trailerWidth" type="number" min="0.5" step="0.1" value="2.5" />
+        </div>
+        <div>
+          <label for="trailerHeight">Höhe innen in m</label>
+          <input id="trailerHeight" type="number" min="0.5" step="0.1" value="1.8" />
+        </div>
+      </div>
+      <button onclick="updateTrailer()">Ladefläche aktualisieren</button>
+
+      <div class="divider"></div>
+
+      <h2>2. Karton / Paket anlegen</h2>
+      <div class="form-grid">
+        <div>
+          <label for="boxName">Name</label>
+          <input id="boxName" value="Umzugskarton" />
+        </div>
+        <div>
+          <label for="boxCount">Anzahl</label>
+          <input id="boxCount" type="number" min="1" step="1" value="1" />
+        </div>
+        <div>
+          <label for="boxLength">Länge in cm</label>
+          <input id="boxLength" type="number" min="1" step="1" value="60" />
+        </div>
+        <div>
+          <label for="boxWidth">Breite in cm</label>
+          <input id="boxWidth" type="number" min="1" step="1" value="40" />
+        </div>
+        <div>
+          <label for="boxHeight">Höhe in cm</label>
+          <input id="boxHeight" type="number" min="1" step="1" value="35" />
+        </div>
+        <div>
+          <label for="boxStackable">Stapelbar?</label>
+          <select id="boxStackable">
+            <option value="yes" selected>Ja</option>
+            <option value="no">Nein</option>
+          </select>
+        </div>
+      </div>
+      <button onclick="addPackageTemplate()">Pakettyp hinzufügen</button>
+
+      <div class="hint">
+        Auto-Pack nutzt jetzt Zentimeter-genaue Kandidatenpositionen statt grobem 25-cm-Raster. Stapelbare Kartons werden auf gleicher Grundfläche bis zur maximalen Innenhöhe gestapelt.
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>3. Pakettypen</h2>
+      <div id="packageList" class="package-list"></div>
+
+      <div class="button-row">
+        <button class="success" onclick="autoPack()">Auto-Pack 3D</button>
+        <button class="secondary" onclick="clearPlaced()">Fläche leeren</button>
+      </div>
+      <div class="button-row">
+        <button class="warning" onclick="rotateSelected()">Auswahl drehen</button>
+        <button class="danger" onclick="deleteSelected()">Auswahl löschen</button>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <div class="stats">
+        <div class="stat"><div id="trailerSizeStat" class="value">4.0 × 2.5 × 1.8 m</div><div class="label">Innenmaß</div></div>
+        <div class="stat"><div id="volumeStat" class="value">18.00 m³</div><div class="label">Ladevolumen</div></div>
+        <div class="stat"><div id="floorStat" class="value">10.00 m²</div><div class="label">Bodenfläche</div></div>
+        <div class="stat"><div id="usedStat" class="value">0.00 m³</div><div class="label">Volumen belegt</div></div>
+        <div class="stat"><div id="usageStat" class="value">0%</div><div class="label">Volumen-Auslastung</div></div>
+      </div>
+
+      <div class="canvas-wrap">
+        <div id="trailer" ondragover="event.preventDefault()" ondrop="dropOnTrailer(event)">
+          <div class="trailer-label">Draufsicht Ladefläche</div>
+        </div>
+        <div class="legend">
+          <span>Rasteranzeige: 10 cm</span>
+          <span>Auto-Pack: zentimetergenaue 2D-Positionierung + Stapelhöhe</span>
+          <span>Klick auf Paket: auswählen</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const SCALE = 100; // 1 m = 100 px, also 1 cm = 1 px
+    const SNAP_CM = 5; // manuelles Verschieben rastet auf 5 cm, Auto-Pack arbeitet mit echten Kantenpositionen
+
+    let packageTemplates = [];
+    let placedBoxes = [];
+    let selectedId = null;
+    let dragState = null;
+
+    const colors = [
+      'rgba(56,189,248,.78)',
+      'rgba(34,197,94,.78)',
+      'rgba(251,191,36,.78)',
+      'rgba(168,85,247,.78)',
+      'rgba(244,114,182,.78)',
+      'rgba(45,212,191,.78)',
+      'rgba(251,146,60,.78)'
+    ];
+
+    function trailerMeters() {
+      return {
+        length: Number(document.getElementById('trailerLength').value) || 4,
+        width: Number(document.getElementById('trailerWidth').value) || 2.5,
+        height: Number(document.getElementById('trailerHeight').value) || 1.8,
+      };
+    }
+
+    function trailerCm() {
+      const t = trailerMeters();
+      return {
+        length: Math.round(t.length * 100),
+        width: Math.round(t.width * 100),
+        height: Math.round(t.height * 100),
+      };
+    }
+
+    function updateTrailer() {
+      const trailer = document.getElementById('trailer');
+      const t = trailerCm();
+      trailer.style.width = `${t.length}px`;
+      trailer.style.height = `${t.width}px`;
+      validateAllBoxes();
+      renderPlacedBoxes();
+      updateStats();
+    }
+
+    function addPackageTemplate() {
+      const name = document.getElementById('boxName').value.trim() || 'Paket';
+      const count = Math.max(1, Number(document.getElementById('boxCount').value) || 1);
+      const lengthCm = Math.max(1, Number(document.getElementById('boxLength').value) || 1);
+      const widthCm = Math.max(1, Number(document.getElementById('boxWidth').value) || 1);
+      const heightCm = Math.max(1, Number(document.getElementById('boxHeight').value) || 1);
+      const stackable = document.getElementById('boxStackable').value === 'yes';
+      const id = crypto.randomUUID();
+
+      packageTemplates.push({
+        id,
+        name,
+        count,
+        lengthCm,
+        widthCm,
+        heightCm,
+        stackable,
+        color: colors[packageTemplates.length % colors.length]
+      });
+      renderPackageList();
+      updateStats();
+    }
+
+    function renderPackageList() {
+      const list = document.getElementById('packageList');
+      list.innerHTML = '';
+
+      packageTemplates.forEach((pkg) => {
+        const div = document.createElement('div');
+        div.className = 'package-template';
+        div.draggable = true;
+        div.ondragstart = (event) => {
+          event.dataTransfer.setData('text/plain', pkg.id);
+        };
+        div.innerHTML = `
+          <div>
+            <div class="package-title">${escapeHtml(pkg.name)} × ${pkg.count}</div>
+            <div class="package-meta">${pkg.lengthCm} × ${pkg.widthCm} × ${pkg.heightCm} cm · ${pkg.stackable ? 'stapelbar' : 'nicht stapelbar'}</div>
+          </div>
+          <button class="small-button danger" onclick="removeTemplate('${pkg.id}')">X</button>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function removeTemplate(id) {
+      packageTemplates = packageTemplates.filter(p => p.id !== id);
+      renderPackageList();
+      updateStats();
+    }
+
+    function dropOnTrailer(event) {
+      event.preventDefault();
+      const templateId = event.dataTransfer.getData('text/plain');
+      const pkg = packageTemplates.find(p => p.id === templateId);
+      if (!pkg) return;
+
+      const trailer = document.getElementById('trailer');
+      const rect = trailer.getBoundingClientRect();
+      const x = snap(event.clientX - rect.left);
+      const y = snap(event.clientY - rect.top);
+
+      placeBox({
+        templateId: pkg.id,
+        name: pkg.name,
+        lengthCm: pkg.lengthCm,
+        widthCm: pkg.widthCm,
+        heightCm: pkg.heightCm,
+        stackable: pkg.stackable,
+        quantity: 1,
+        stackHeightCm: pkg.heightCm,
+        x,
+        y,
+        color: pkg.color,
+        rotated: false,
+      });
+    }
+
+    function placeBox(data) {
+      const box = { id: crypto.randomUUID(), ...data };
+      placedBoxes.push(box);
+      selectedId = box.id;
+      validateAllBoxes();
+      renderPlacedBoxes();
+      updateStats();
+    }
+
+    function renderPlacedBoxes() {
+      const trailer = document.getElementById('trailer');
+      [...trailer.querySelectorAll('.placed-box')].forEach(el => el.remove());
+
+      placedBoxes.forEach(box => {
+        const el = document.createElement('div');
+        el.className = 'placed-box';
+        if (box.id === selectedId) el.classList.add('selected');
+        if (box.invalid) el.classList.add('invalid');
+        el.style.left = `${box.x}px`;
+        el.style.top = `${box.y}px`;
+        el.style.width = `${boxWidthCm(box)}px`;
+        el.style.height = `${boxDepthCm(box)}px`;
+        el.style.background = box.invalid ? 'rgba(239,68,68,.78)' : box.color;
+        el.innerHTML = `
+          <div>
+            ${escapeHtml(box.name)}<br>
+            ${boxWidthCm(box)}×${boxDepthCm(box)}×${box.stackHeightCm} cm
+          </div>
+          ${box.quantity > 1 ? `<span class="stack-badge">${box.quantity}×</span>` : ''}
+        `;
+
+        el.addEventListener('mousedown', (event) => startMove(event, box.id));
+        el.addEventListener('click', (event) => {
+          event.stopPropagation();
+          selectedId = box.id;
+          renderPlacedBoxes();
+        });
+        trailer.appendChild(el);
+      });
+
+      trailer.onclick = () => {
+        selectedId = null;
+        renderPlacedBoxes();
+      };
+    }
+
+    function startMove(event, id) {
+      event.preventDefault();
+      event.stopPropagation();
+      selectedId = id;
+      const box = placedBoxes.find(b => b.id === id);
+      dragState = {
+        id,
+        startMouseX: event.clientX,
+        startMouseY: event.clientY,
+        startX: box.x,
+        startY: box.y,
+      };
+      document.addEventListener('mousemove', moveSelected);
+      document.addEventListener('mouseup', stopMove);
+      renderPlacedBoxes();
+    }
+
+    function moveSelected(event) {
+      if (!dragState) return;
+      const box = placedBoxes.find(b => b.id === dragState.id);
+      box.x = snap(dragState.startX + (event.clientX - dragState.startMouseX));
+      box.y = snap(dragState.startY + (event.clientY - dragState.startMouseY));
+      validateAllBoxes();
+      renderPlacedBoxes();
+      updateStats();
+    }
+
+    function stopMove() {
+      dragState = null;
+      document.removeEventListener('mousemove', moveSelected);
+      document.removeEventListener('mouseup', stopMove);
+    }
+
+    function rotateSelected() {
+      const box = placedBoxes.find(b => b.id === selectedId);
+      if (!box) return;
+      box.rotated = !box.rotated;
+      validateAllBoxes();
+      renderPlacedBoxes();
+      updateStats();
+    }
+
+    function deleteSelected() {
+      if (!selectedId) return;
+      placedBoxes = placedBoxes.filter(b => b.id !== selectedId);
+      selectedId = null;
+      renderPlacedBoxes();
+      updateStats();
+    }
+
+    function clearPlaced() {
+      placedBoxes = [];
+      selectedId = null;
+      renderPlacedBoxes();
+      updateStats();
+    }
+
+    function autoPack() {
+      const t = trailerCm();
+      const unpacked = [];
+      const stacks = [];
+
+      const itemGroups = packageTemplates
+        .map(pkg => ({ ...pkg, remaining: pkg.count }))
+        .sort((a, b) => {
+          const av = a.lengthCm * a.widthCm * a.heightCm;
+          const bv = b.lengthCm * b.widthCm * b.heightCm;
+          return bv - av;
+        });
+
+      for (const item of itemGroups) {
+        while (item.remaining > 0) {
+          const stackQty = item.stackable ? Math.max(1, Math.min(item.remaining, Math.floor(t.height / item.heightCm))) : 1;
+
+          const stack = {
+            id: crypto.randomUUID(),
+            templateId: item.id,
+            name: item.name,
+            lengthCm: item.lengthCm,
+            widthCm: item.widthCm,
+            heightCm: item.heightCm,
+            stackable: item.stackable,
+            quantity: stackQty,
+            stackHeightCm: stackQty * item.heightCm,
+            color: item.color,
+            rotated: false,
+            x: 0,
+            y: 0,
+          };
+
+          const pos = findBestPosition(stack, stacks, t);
+          if (!pos) {
+            unpacked.push({ ...item, count: item.remaining });
+            break;
+          }
+
+          stack.x = pos.x;
+          stack.y = pos.y;
+          stack.rotated = pos.rotated;
+          stacks.push(stack);
+          item.remaining -= stackQty;
+        }
+      }
+
+      placedBoxes = stacks;
+      selectedId = null;
+      validateAllBoxes();
+      renderPlacedBoxes();
+      updateStats();
+
+      const missing = unpacked.reduce((sum, item) => sum + item.count, 0);
+      if (missing > 0) {
+        alert(`${missing} Paket(e) konnten nicht platziert werden. Entweder ist die Ladefläche, Höhe oder das Volumen nicht ausreichend.`);
+      }
+    }
+
+    function findBestPosition(candidate, existing, trailer) {
+      const rotations = [false, true];
+      let best = null;
+
+      for (const rotated of rotations) {
+        candidate.rotated = rotated;
+        const w = boxWidthCm(candidate);
+        const d = boxDepthCm(candidate);
+
+        if (w > trailer.length || d > trailer.width || candidate.stackHeightCm > trailer.height) continue;
+
+        const xs = uniqueSorted([0, ...existing.map(b => b.x + boxWidthCm(b))]);
+        const ys = uniqueSorted([0, ...existing.map(b => b.y + boxDepthCm(b))]);
+
+        for (const y of ys) {
+          for (const x of xs) {
+            const test = { ...candidate, x, y, rotated };
+            if (!fits(test, existing, trailer)) continue;
+
+            const score = scorePlacement(test, existing, trailer);
+            if (!best || score < best.score) {
+              best = { x, y, rotated, score };
+            }
+          }
+        }
+      }
+
+      return best;
+    }
+
+    function scorePlacement(box, existing, trailer) {
+      const right = box.x + boxWidthCm(box);
+      const bottom = box.y + boxDepthCm(box);
+      const usedBoundingArea = right * bottom;
+      const edgeBonus = (box.x === 0 ? -5000 : 0) + (box.y === 0 ? -5000 : 0);
+      const contactBonus = contactLength(box, existing) * -20;
+      return usedBoundingArea + right * 3 + bottom * 2 + edgeBonus + contactBonus;
+    }
+
+    function contactLength(box, existing) {
+      let contact = 0;
+      for (const other of existing) {
+        if (box.x === other.x + boxWidthCm(other) || other.x === box.x + boxWidthCm(box)) {
+          const overlapY = Math.max(0, Math.min(box.y + boxDepthCm(box), other.y + boxDepthCm(other)) - Math.max(box.y, other.y));
+          contact += overlapY;
+        }
+        if (box.y === other.y + boxDepthCm(other) || other.y === box.y + boxDepthCm(box)) {
+          const overlapX = Math.max(0, Math.min(box.x + boxWidthCm(box), other.x + boxWidthCm(other)) - Math.max(box.x, other.x));
+          contact += overlapX;
+        }
+      }
+      return contact;
+    }
+
+    function fits(candidate, boxes, trailer) {
+      const w = boxWidthCm(candidate);
+      const d = boxDepthCm(candidate);
+
+      if (candidate.x < 0 || candidate.y < 0 || candidate.x + w > trailer.length || candidate.y + d > trailer.width) return false;
+      if (candidate.stackHeightCm > trailer.height) return false;
+
+      return !boxes.some(other => overlaps(candidate, other));
+    }
+
+    function validateAllBoxes() {
+      const t = trailerCm();
+      placedBoxes.forEach(box => {
+        box.invalid = !fits(box, placedBoxes.filter(b => b.id !== box.id), t);
+      });
+    }
+
+    function overlaps(a, b) {
+      return !(
+        a.x + boxWidthCm(a) <= b.x ||
+        b.x + boxWidthCm(b) <= a.x ||
+        a.y + boxDepthCm(a) <= b.y ||
+        b.y + boxDepthCm(b) <= a.y
+      );
+    }
+
+    function boxWidthCm(box) {
+      return box.rotated ? box.widthCm : box.lengthCm;
+    }
+
+    function boxDepthCm(box) {
+      return box.rotated ? box.lengthCm : box.widthCm;
+    }
+
+    function snap(value) {
+      return Math.max(0, Math.round(value / SNAP_CM) * SNAP_CM);
+    }
+
+    function uniqueSorted(values) {
+      return [...new Set(values.map(v => Math.round(v)))].filter(v => v >= 0).sort((a, b) => a - b);
+    }
+
+    function updateStats() {
+      const t = trailerMeters();
+      const floorArea = t.length * t.width;
+      const totalVolume = t.length * t.width * t.height;
+      const usedVolume = placedBoxes.reduce((sum, b) => sum + ((b.lengthCm * b.widthCm * b.heightCm * b.quantity) / 1000000), 0);
+      const usage = totalVolume > 0 ? Math.round((usedVolume / totalVolume) * 100) : 0;
+
+      document.getElementById('trailerSizeStat').textContent = `${t.length.toFixed(1)} × ${t.width.toFixed(1)} × ${t.height.toFixed(1)} m`;
+      document.getElementById('volumeStat').textContent = `${totalVolume.toFixed(2)} m³`;
+      document.getElementById('floorStat').textContent = `${floorArea.toFixed(2)} m²`;
+      document.getElementById('usedStat').textContent = `${usedVolume.toFixed(2)} m³`;
+      document.getElementById('usageStat').textContent = `${usage}%`;
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function seedDemoData() {
+      packageTemplates = [];
+      packageTemplates.push({
+        id: crypto.randomUUID(), name: 'Umzugskarton', count: 12,
+        lengthCm: 60, widthCm: 40, heightCm: 35, stackable: true, color: colors[0]
+      });
+      packageTemplates.push({
+        id: crypto.randomUUID(), name: 'Großer Karton', count: 4,
+        lengthCm: 80, widthCm: 60, heightCm: 50, stackable: true, color: colors[1]
+      });
+      packageTemplates.push({
+        id: crypto.randomUUID(), name: 'Nicht stapelbar', count: 2,
+        lengthCm: 100, widthCm: 50, heightCm: 60, stackable: false, color: colors[2]
+      });
+      renderPackageList();
+      updateTrailer();
+    }
+
+    seedDemoData();
   </script>
 </body>
 </html>
