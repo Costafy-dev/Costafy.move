@@ -1,740 +1,724 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="de">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.6">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anhänger Ladeflächen-Planer</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #38bdf8;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --border: #334155;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #020617, #0f172a);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 24px 32px 12px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.95);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(12px);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 28px;
+      letter-spacing: -0.03em;
+    }
+
+    header p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 900px;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 20px;
+      padding: 20px 32px 32px;
+    }
+
+    .panel {
+      background: rgba(17, 24, 39, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 16px 40px rgba(0,0,0,.25);
+    }
+
+    .panel h2 {
+      font-size: 18px;
+      margin: 0 0 14px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+
+    input, select, button {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #020617;
+      color: var(--text);
+      padding: 10px 11px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(56,189,248,.18);
+    }
+
+    button {
+      cursor: pointer;
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      border: none;
+      font-weight: 700;
+      transition: transform .1s ease, opacity .1s ease;
+    }
+
+    button:hover { opacity: .95; transform: translateY(-1px); }
+    button.secondary { background: #334155; }
+    button.danger { background: #991b1b; }
+    button.success { background: #166534; }
+    button.warning { background: #92400e; }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .package-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
+      max-height: 310px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .package-template {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      cursor: grab;
+    }
+
+    .package-template:active { cursor: grabbing; }
+
+    .package-title {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .package-meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .small-button {
+      width: auto;
+      padding: 7px 9px;
+      font-size: 12px;
+    }
+
+    .workspace {
+      min-width: 0;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .stat {
+      background: rgba(17,24,39,.85);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    .stat .value {
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .stat .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .canvas-wrap {
+      width: 100%;
+      overflow: auto;
+      background: rgba(2,6,23,.6);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      min-height: 620px;
+    }
+
+    #trailer {
+      position: relative;
+      margin: 0 auto;
+      background:
+        linear-gradient(rgba(148,163,184,.14) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148,163,184,.14) 1px, transparent 1px),
+        #e5e7eb;
+      background-size: 25px 25px;
+      border: 4px solid #64748b;
+      border-radius: 12px;
+      box-shadow: inset 0 0 0 2px rgba(15,23,42,.25), 0 18px 50px rgba(0,0,0,.28);
+      color: #111827;
+      transition: width .2s ease, height .2s ease;
+    }
+
+    .trailer-label {
+      position: absolute;
+      left: 10px;
+      top: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      color: rgba(15,23,42,.55);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .placed-box {
+      position: absolute;
+      border: 2px solid rgba(15,23,42,.5);
+      border-radius: 8px;
+      background: rgba(56, 189, 248, 0.78);
+      color: #082f49;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 4px;
+      user-select: none;
+      cursor: move;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(15,23,42,.18);
+    }
+
+    .placed-box.selected {
+      outline: 3px solid var(--warning);
+      outline-offset: 2px;
+      z-index: 20;
+    }
+
+    .placed-box.invalid {
+      background: rgba(239, 68, 68, .78);
+      color: white;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      margin: 10px 0 0;
+    }
+
+    .hint {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(56,189,248,.09);
+      border: 1px solid rgba(56,189,248,.22);
+      color: #bae6fd;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    @media (max-width: 1050px) {
+      main { grid-template-columns: 1fr; padding: 16px; }
+      header { padding: 20px 16px 12px; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
   </style>
 </head>
 <body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="de"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="UTF-8" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;Anhänger Ladeflächen-Planer&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;style&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>:root {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--bg: #0f172a;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--panel: #111827;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--panel-2: #1f2937;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--text: #e5e7eb;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--muted: #9ca3af;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--accent: #38bdf8;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--danger: #ef4444;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--success: #22c55e;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--warning: #f59e0b;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--border: #334155;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>* { box-sizing: border-box; }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>body {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin: 0;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: linear-gradient(135deg, #020617, #0f172a);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: var(--text);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>min-height: 100vh;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>header {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 24px 32px 12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-bottom: 1px solid var(--border);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: rgba(15, 23, 42, 0.95);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>position: sticky;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>top: 0;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>z-index: 50;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>backdrop-filter: blur(12px);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>h1 {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin: 0 0 6px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 28px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>letter-spacing: -0.03em;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>header p {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin: 0;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: var(--muted);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>max-width: 900px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>main {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: grid;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>grid-template-columns: 380px 1fr;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap: 20px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 20px 32px 32px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.panel {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: rgba(17, 24, 39, 0.92);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid var(--border);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 18px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 18px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>box-shadow: 0 16px 40px rgba(0,0,0,.25);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.panel h2 {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 18px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin: 0 0 14px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.form-grid {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: grid;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>grid-template-columns: 1fr 1fr;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 14px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>label {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: block;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: var(--muted);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 5px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>input, select, button {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>width: 100%;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid var(--border);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: #020617;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: var(--text);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 10px 11px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 14px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>outline: none;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>input:focus, select:focus {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-color: var(--accent);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>box-shadow: 0 0 0 2px rgba(56,189,248,.18);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>button {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>cursor: pointer;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: linear-gradient(135deg, #0284c7, #0369a1);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: none;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 700;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>transition: transform .1s ease, opacity .1s ease;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>button:hover { opacity: .95; transform: translateY(-1px); }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>button.secondary { background: #334155; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>button.danger { background: #991b1b; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>button.success { background: #166534; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>button.warning { background: #92400e; }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.button-row {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: grid;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>grid-template-columns: 1fr 1fr;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.package-list {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>flex-direction: column;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>max-height: 310px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>overflow: auto;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding-right: 4px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.package-template {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: var(--panel-2);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid var(--border);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 14px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: grid;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>grid-template-columns: 1fr auto;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap: 8px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>cursor: grab;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.package-template:active { cursor: grabbing; }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.package-title {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 700;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 14px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.package-meta {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: var(--muted);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 2px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.small-button {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>width: auto;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 7px 9px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.workspace {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>min-width: 0;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.stats {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: grid;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>grid-template-columns: repeat(4, minmax(120px, 1fr));</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 14px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.stat {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: rgba(17,24,39,.85);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid var(--border);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 14px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.stat .value {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 20px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 800;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.stat .label {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: var(--muted);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 3px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.canvas-wrap {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>width: 100%;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>overflow: auto;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: rgba(2,6,23,.6);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid var(--border);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 18px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 20px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>min-height: 620px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>#trailer {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>position: relative;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin: 0 auto;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background:</p>
-<p class="p1"><span class="Apple-converted-space">        </span>linear-gradient(rgba(148,163,184,.14) 1px, transparent 1px),</p>
-<p class="p1"><span class="Apple-converted-space">        </span>linear-gradient(90deg, rgba(148,163,184,.14) 1px, transparent 1px),</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#e5e7eb;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background-size: 25px 25px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 4px solid #64748b;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>box-shadow: inset 0 0 0 2px rgba(15,23,42,.25), 0 18px 50px rgba(0,0,0,.28);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: #111827;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>transition: width .2s ease, height .2s ease;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.trailer-label {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>position: absolute;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>left: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>top: 8px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 800;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: rgba(15,23,42,.55);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>pointer-events: none;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>z-index: 1;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.placed-box {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>position: absolute;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 2px solid rgba(15,23,42,.5);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 8px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: rgba(56, 189, 248, 0.78);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: #082f49;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 800;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>justify-content: center;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>text-align: center;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 4px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>user-select: none;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>cursor: move;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>overflow: hidden;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>box-shadow: 0 8px 20px rgba(15,23,42,.18);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.placed-box.selected {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>outline: 3px solid var(--warning);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>outline-offset: 2px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>z-index: 20;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.placed-box.invalid {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: rgba(239, 68, 68, .78);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: white;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.legend {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>flex-wrap: wrap;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: var(--muted);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin: 10px 0 0;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.hint {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 14px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: rgba(56,189,248,.09);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid rgba(56,189,248,.22);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: #bae6fd;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 13px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>line-height: 1.45;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.divider {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>height: 1px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: var(--border);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin: 16px 0;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>@media (max-width: 1050px) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>main { grid-template-columns: 1fr; padding: 16px; }</p>
-<p class="p1"><span class="Apple-converted-space">      </span>header { padding: 20px 16px 12px; }</p>
-<p class="p1"><span class="Apple-converted-space">      </span>.stats { grid-template-columns: repeat(2, 1fr); }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;header&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;h1&gt;Anhänger Ladeflächen-Planer&lt;/h1&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;p&gt;Plane die Ladefläche deines Anhängers in der Draufsicht. Kartons können manuell per Drag &amp; Drop platziert oder automatisch platzsparend angeordnet werden.&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/header&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;main&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;section class="panel"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;h2&gt;1. Anhänger einstellen&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="form-grid"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;label for="trailerLength"&gt;Länge innen in m&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;input id="trailerLength" type="number" min="0.5" step="0.1" value="4.0" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;label for="trailerWidth"&gt;Breite innen in m&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;input id="trailerWidth" type="number" min="0.5" step="0.1" value="2.5" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;button onclick="updateTrailer()"&gt;Ladefläche aktualisieren&lt;/button&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="divider"&gt;&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;h2&gt;2. Karton / Paket anlegen&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="form-grid"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;label for="boxName"&gt;Name&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;input id="boxName" value="Umzugskarton" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;label for="boxCount"&gt;Anzahl&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;input id="boxCount" type="number" min="1" step="1" value="1" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;label for="boxLength"&gt;Länge in cm&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;input id="boxLength" type="number" min="1" step="1" value="60" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;label for="boxWidth"&gt;Breite in cm&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;input id="boxWidth" type="number" min="1" step="1" value="40" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;button onclick="addPackageTemplate()"&gt;Pakettyp hinzufügen&lt;/button&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="hint"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>Tipp: Für die Draufsicht zählen erstmal Länge und Breite. Höhe/Gewicht könnte man als nächste Ausbaustufe für echte 3D-Beladung ergänzen.</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="divider"&gt;&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;h2&gt;3. Pakettypen&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div id="packageList" class="package-list"&gt;&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="button-row"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="success" onclick="autoPack()"&gt;Auto-Pack&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="secondary" onclick="clearPlaced()"&gt;Fläche leeren&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="button-row"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="warning" onclick="rotateSelected()"&gt;Auswahl drehen&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="danger" onclick="deleteSelected()"&gt;Auswahl löschen&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/section&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;section class="workspace"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="stats"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="stat"&gt;&lt;div id="trailerSizeStat" class="value"&gt;4.0 × 2.5 m&lt;/div&gt;&lt;div class="label"&gt;Innenmaß&lt;/div&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="stat"&gt;&lt;div id="areaStat" class="value"&gt;10.00 m²&lt;/div&gt;&lt;div class="label"&gt;Ladefläche&lt;/div&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="stat"&gt;&lt;div id="usedStat" class="value"&gt;0.00 m²&lt;/div&gt;&lt;div class="label"&gt;Belegt&lt;/div&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="stat"&gt;&lt;div id="usageStat" class="value"&gt;0%&lt;/div&gt;&lt;div class="label"&gt;Auslastung&lt;/div&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="canvas-wrap"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="trailer" ondragover="event.preventDefault()" ondrop="dropOnTrailer(event)"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="trailer-label"&gt;Ladefläche&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="legend"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;span&gt;Raster: 25 cm&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;span&gt;Drag &amp; Drop: Pakettyp links greifen und auf die Fläche ziehen&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;span&gt;Klick auf Paket: auswählen&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/section&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/main&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const SCALE = 100; // 1 m = 100 px</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const GRID_CM = 25;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const GRID_PX = GRID_CM; // weil 100 cm = 100 px</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>let packageTemplates = [];</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let placedBoxes = [];</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let selectedId = null;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let dragState = null;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>const colors = [</p>
-<p class="p1"><span class="Apple-converted-space">      </span>'rgba(56,189,248,.78)',</p>
-<p class="p1"><span class="Apple-converted-space">      </span>'rgba(34,197,94,.78)',</p>
-<p class="p1"><span class="Apple-converted-space">      </span>'rgba(251,191,36,.78)',</p>
-<p class="p1"><span class="Apple-converted-space">      </span>'rgba(168,85,247,.78)',</p>
-<p class="p1"><span class="Apple-converted-space">      </span>'rgba(244,114,182,.78)',</p>
-<p class="p1"><span class="Apple-converted-space">      </span>'rgba(45,212,191,.78)',</p>
-<p class="p1"><span class="Apple-converted-space">      </span>'rgba(251,146,60,.78)'</p>
-<p class="p1"><span class="Apple-converted-space">    </span>];</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function trailerMeters() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>return {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>length: Number(document.getElementById('trailerLength').value) || 4,</p>
-<p class="p1"><span class="Apple-converted-space">        </span>width: Number(document.getElementById('trailerWidth').value) || 2.5,</p>
-<p class="p1"><span class="Apple-converted-space">      </span>};</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function trailerPx() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const t = trailerMeters();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>return { width: t.length * SCALE, height: t.width * SCALE };</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function updateTrailer() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const trailer = document.getElementById('trailer');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const tpx = trailerPx();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>trailer.style.width = `${tpx.width}px`;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>trailer.style.height = `${tpx.height}px`;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>validateAllBoxes();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>renderPlacedBoxes();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>updateStats();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function addPackageTemplate() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const name = document.getElementById('boxName').value.trim() || 'Paket';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const count = Math.max(1, Number(document.getElementById('boxCount').value) || 1);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const lengthCm = Math.max(1, Number(document.getElementById('boxLength').value) || 1);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const widthCm = Math.max(1, Number(document.getElementById('boxWidth').value) || 1);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const id = crypto.randomUUID();</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>packageTemplates.push({</p>
-<p class="p1"><span class="Apple-converted-space">        </span>id,</p>
-<p class="p1"><span class="Apple-converted-space">        </span>name,</p>
-<p class="p1"><span class="Apple-converted-space">        </span>count,</p>
-<p class="p1"><span class="Apple-converted-space">        </span>lengthCm,</p>
-<p class="p1"><span class="Apple-converted-space">        </span>widthCm,</p>
-<p class="p1"><span class="Apple-converted-space">        </span>color: colors[packageTemplates.length % colors.length]</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p1"><span class="Apple-converted-space">      </span>renderPackageList();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function renderPackageList() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const list = document.getElementById('packageList');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>list.innerHTML = '';</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>packageTemplates.forEach((pkg) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const div = document.createElement('div');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>div.className = 'package-template';</p>
-<p class="p1"><span class="Apple-converted-space">        </span>div.draggable = true;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>div.ondragstart = (event) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>event.dataTransfer.setData('text/plain', pkg.id);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>};</p>
-<p class="p1"><span class="Apple-converted-space">        </span>div.innerHTML = `</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="package-title"&gt;${escapeHtml(pkg.name)} × ${pkg.count}&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="package-meta"&gt;${pkg.lengthCm} × ${pkg.widthCm} cm&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;button class="small-button danger" onclick="removeTemplate('${pkg.id}')"&gt;X&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>`;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>list.appendChild(div);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function removeTemplate(id) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>packageTemplates = packageTemplates.filter(p =&gt; p.id !== id);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>renderPackageList();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function dropOnTrailer(event) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>event.preventDefault();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const templateId = event.dataTransfer.getData('text/plain');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const pkg = packageTemplates.find(p =&gt; p.id === templateId);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (!pkg) return;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>const trailer = document.getElementById('trailer');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const rect = trailer.getBoundingClientRect();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const x = snap(event.clientX - rect.left);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const y = snap(event.clientY - rect.top);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>placeBox({</p>
-<p class="p1"><span class="Apple-converted-space">        </span>templateId: pkg.id,</p>
-<p class="p1"><span class="Apple-converted-space">        </span>name: pkg.name,</p>
-<p class="p1"><span class="Apple-converted-space">        </span>lengthCm: pkg.lengthCm,</p>
-<p class="p1"><span class="Apple-converted-space">        </span>widthCm: pkg.widthCm,</p>
-<p class="p1"><span class="Apple-converted-space">        </span>x,</p>
-<p class="p1"><span class="Apple-converted-space">        </span>y,</p>
-<p class="p1"><span class="Apple-converted-space">        </span>color: pkg.color,</p>
-<p class="p1"><span class="Apple-converted-space">        </span>rotated: false,</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function placeBox(data) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const box = {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>id: crypto.randomUUID(),</p>
-<p class="p1"><span class="Apple-converted-space">        </span>...data,</p>
-<p class="p1"><span class="Apple-converted-space">      </span>};</p>
-<p class="p1"><span class="Apple-converted-space">      </span>placedBoxes.push(box);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>selectedId = box.id;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>validateAllBoxes();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>renderPlacedBoxes();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>updateStats();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function renderPlacedBoxes() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const trailer = document.getElementById('trailer');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>[...trailer.querySelectorAll('.placed-box')].forEach(el =&gt; el.remove());</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>placedBoxes.forEach(box =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const el = document.createElement('div');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>el.className = 'placed-box';</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (box.id === selectedId) el.classList.add('selected');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (box.invalid) el.classList.add('invalid');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>el.style.left = `${box.x}px`;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>el.style.top = `${box.y}px`;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>el.style.width = `${boxWidthPx(box)}px`;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>el.style.height = `${boxHeightPx(box)}px`;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>el.style.background = box.invalid ? 'rgba(239,68,68,.78)' : box.color;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>el.innerHTML = `${escapeHtml(box.name)}&lt;br&gt;${box.rotated ? box.widthCm + '×' + box.lengthCm : box.lengthCm + '×' + box.widthCm} cm`;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>el.addEventListener('mousedown', (event) =&gt; startMove(event, box.id));</p>
-<p class="p1"><span class="Apple-converted-space">        </span>el.addEventListener('click', (event) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>event.stopPropagation();</p>
-<p class="p1"><span class="Apple-converted-space">          </span>selectedId = box.id;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>renderPlacedBoxes();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>});</p>
-<p class="p1"><span class="Apple-converted-space">        </span>trailer.appendChild(el);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>trailer.onclick = () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>selectedId = null;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>renderPlacedBoxes();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>};</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function startMove(event, id) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>event.preventDefault();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>event.stopPropagation();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>selectedId = id;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const box = placedBoxes.find(b =&gt; b.id === id);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>dragState = {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>id,</p>
-<p class="p1"><span class="Apple-converted-space">        </span>startMouseX: event.clientX,</p>
-<p class="p1"><span class="Apple-converted-space">        </span>startMouseY: event.clientY,</p>
-<p class="p1"><span class="Apple-converted-space">        </span>startX: box.x,</p>
-<p class="p1"><span class="Apple-converted-space">        </span>startY: box.y,</p>
-<p class="p1"><span class="Apple-converted-space">      </span>};</p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.addEventListener('mousemove', moveSelected);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.addEventListener('mouseup', stopMove);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>renderPlacedBoxes();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function moveSelected(event) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (!dragState) return;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const box = placedBoxes.find(b =&gt; b.id === dragState.id);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>box.x = snap(dragState.startX + (event.clientX - dragState.startMouseX));</p>
-<p class="p1"><span class="Apple-converted-space">      </span>box.y = snap(dragState.startY + (event.clientY - dragState.startMouseY));</p>
-<p class="p1"><span class="Apple-converted-space">      </span>validateAllBoxes();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>renderPlacedBoxes();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>updateStats();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function stopMove() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>dragState = null;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.removeEventListener('mousemove', moveSelected);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.removeEventListener('mouseup', stopMove);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function rotateSelected() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const box = placedBoxes.find(b =&gt; b.id === selectedId);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (!box) return;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>box.rotated = !box.rotated;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>validateAllBoxes();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>renderPlacedBoxes();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>updateStats();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function deleteSelected() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (!selectedId) return;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>placedBoxes = placedBoxes.filter(b =&gt; b.id !== selectedId);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>selectedId = null;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>renderPlacedBoxes();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>updateStats();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function clearPlaced() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>placedBoxes = [];</p>
-<p class="p1"><span class="Apple-converted-space">      </span>selectedId = null;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>renderPlacedBoxes();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>updateStats();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function autoPack() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const items = [];</p>
-<p class="p1"><span class="Apple-converted-space">      </span>packageTemplates.forEach(pkg =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>for (let i = 0; i &lt; pkg.count; i++) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>items.push({ ...pkg });</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>items.sort((a, b) =&gt; (b.lengthCm * b.widthCm) - (a.lengthCm * a.widthCm));</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>const tpx = trailerPx();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const packed = [];</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const unpacked = [];</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>for (const item of items) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const candidates = [</p>
-<p class="p1"><span class="Apple-converted-space">          </span>{ rotated: false, w: item.lengthCm, h: item.widthCm },</p>
-<p class="p1"><span class="Apple-converted-space">          </span>{ rotated: true, w: item.widthCm, h: item.lengthCm },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>];</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>let placed = false;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>for (let y = 0; y &lt;= tpx.height &amp;&amp; !placed; y += GRID_PX) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>for (let x = 0; x &lt;= tpx.width &amp;&amp; !placed; x += GRID_PX) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>for (const c of candidates) {</p>
-<p class="p1"><span class="Apple-converted-space">              </span>const candidate = {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>id: crypto.randomUUID(),</p>
-<p class="p1"><span class="Apple-converted-space">                </span>templateId: item.id,</p>
-<p class="p1"><span class="Apple-converted-space">                </span>name: item.name,</p>
-<p class="p1"><span class="Apple-converted-space">                </span>lengthCm: item.lengthCm,</p>
-<p class="p1"><span class="Apple-converted-space">                </span>widthCm: item.widthCm,</p>
-<p class="p1"><span class="Apple-converted-space">                </span>x,</p>
-<p class="p1"><span class="Apple-converted-space">                </span>y,</p>
-<p class="p1"><span class="Apple-converted-space">                </span>color: item.color,</p>
-<p class="p1"><span class="Apple-converted-space">                </span>rotated: c.rotated,</p>
-<p class="p1"><span class="Apple-converted-space">              </span>};</p>
-<p class="p1"><span class="Apple-converted-space">              </span>if (fits(candidate, packed, tpx)) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>packed.push(candidate);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>placed = true;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>break;</p>
-<p class="p1"><span class="Apple-converted-space">              </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">          </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (!placed) unpacked.push(item);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>placedBoxes = packed;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>selectedId = null;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>validateAllBoxes();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>renderPlacedBoxes();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>updateStats();</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (unpacked.length) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>alert(`${unpacked.length} Paket(e) konnten nicht platziert werden. Ladefläche ist rechnerisch voll oder die Maße passen nicht.`);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function fits(candidate, boxes, tpx) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const cw = boxWidthPx(candidate);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const ch = boxHeightPx(candidate);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (candidate.x &lt; 0 || candidate.y &lt; 0 || candidate.x + cw &gt; tpx.width || candidate.y + ch &gt; tpx.height) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>return false;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>return !boxes.some(other =&gt; overlaps(candidate, other));</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function validateAllBoxes() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const tpx = trailerPx();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>placedBoxes.forEach(box =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>box.invalid = !fits(box, placedBoxes.filter(b =&gt; b.id !== box.id), tpx);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function overlaps(a, b) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>return !(</p>
-<p class="p1"><span class="Apple-converted-space">        </span>a.x + boxWidthPx(a) &lt;= b.x ||</p>
-<p class="p1"><span class="Apple-converted-space">        </span>b.x + boxWidthPx(b) &lt;= a.x ||</p>
-<p class="p1"><span class="Apple-converted-space">        </span>a.y + boxHeightPx(a) &lt;= b.y ||</p>
-<p class="p1"><span class="Apple-converted-space">        </span>b.y + boxHeightPx(b) &lt;= a.y</p>
-<p class="p1"><span class="Apple-converted-space">      </span>);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function boxWidthPx(box) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>return box.rotated ? box.widthCm : box.lengthCm;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function boxHeightPx(box) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>return box.rotated ? box.lengthCm : box.widthCm;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function snap(value) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>return Math.max(0, Math.round(value / GRID_PX) * GRID_PX);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function updateStats() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const t = trailerMeters();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const totalArea = t.length * t.width;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const usedArea = placedBoxes.reduce((sum, b) =&gt; sum + (b.lengthCm * b.widthCm / 10000), 0);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const usage = totalArea &gt; 0 ? Math.round((usedArea / totalArea) * 100) : 0;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('trailerSizeStat').textContent = `${t.length.toFixed(1)} × ${t.width.toFixed(1)} m`;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('areaStat').textContent = `${totalArea.toFixed(2)} m²`;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('usedStat').textContent = `${usedArea.toFixed(2)} m²`;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('usageStat').textContent = `${usage}%`;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function escapeHtml(str) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>return String(str)</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.replaceAll('&amp;', '&amp;amp;')</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.replaceAll('&lt;', '&amp;lt;')</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.replaceAll('&gt;', '&amp;gt;')</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.replaceAll('"', '&amp;quot;')</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.replaceAll("'", '&amp;#039;');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>addPackageTemplate();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('boxName').value = 'Großer Karton';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('boxLength').value = 80;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('boxWidth').value = 60;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('boxCount').value = 2;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>addPackageTemplate();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('boxName').value = 'Kleines Paket';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('boxLength').value = 40;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('boxWidth').value = 30;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('boxCount').value = 4;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>addPackageTemplate();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('boxName').value = 'Umzugskarton';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('boxLength').value = 60;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('boxWidth').value = 40;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('boxCount').value = 1;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>updateTrailer();</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+  <header>
+    <h1>Anhänger Ladeflächen-Planer</h1>
+    <p>Plane die Ladefläche deines Anhängers in der Draufsicht. Kartons können manuell per Drag & Drop platziert oder automatisch platzsparend angeordnet werden.</p>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>1. Anhänger einstellen</h2>
+      <div class="form-grid">
+        <div>
+          <label for="trailerLength">Länge innen in m</label>
+          <input id="trailerLength" type="number" min="0.5" step="0.1" value="4.0" />
+        </div>
+        <div>
+          <label for="trailerWidth">Breite innen in m</label>
+          <input id="trailerWidth" type="number" min="0.5" step="0.1" value="2.5" />
+        </div>
+      </div>
+      <button onclick="updateTrailer()">Ladefläche aktualisieren</button>
+
+      <div class="divider"></div>
+
+      <h2>2. Karton / Paket anlegen</h2>
+      <div class="form-grid">
+        <div>
+          <label for="boxName">Name</label>
+          <input id="boxName" value="Umzugskarton" />
+        </div>
+        <div>
+          <label for="boxCount">Anzahl</label>
+          <input id="boxCount" type="number" min="1" step="1" value="1" />
+        </div>
+        <div>
+          <label for="boxLength">Länge in cm</label>
+          <input id="boxLength" type="number" min="1" step="1" value="60" />
+        </div>
+        <div>
+          <label for="boxWidth">Breite in cm</label>
+          <input id="boxWidth" type="number" min="1" step="1" value="40" />
+        </div>
+      </div>
+      <button onclick="addPackageTemplate()">Pakettyp hinzufügen</button>
+
+      <div class="hint">
+        Tipp: Für die Draufsicht zählen erstmal Länge und Breite. Höhe/Gewicht könnte man als nächste Ausbaustufe für echte 3D-Beladung ergänzen.
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>3. Pakettypen</h2>
+      <div id="packageList" class="package-list"></div>
+
+      <div class="button-row">
+        <button class="success" onclick="autoPack()">Auto-Pack</button>
+        <button class="secondary" onclick="clearPlaced()">Fläche leeren</button>
+      </div>
+      <div class="button-row">
+        <button class="warning" onclick="rotateSelected()">Auswahl drehen</button>
+        <button class="danger" onclick="deleteSelected()">Auswahl löschen</button>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <div class="stats">
+        <div class="stat"><div id="trailerSizeStat" class="value">4.0 × 2.5 m</div><div class="label">Innenmaß</div></div>
+        <div class="stat"><div id="areaStat" class="value">10.00 m²</div><div class="label">Ladefläche</div></div>
+        <div class="stat"><div id="usedStat" class="value">0.00 m²</div><div class="label">Belegt</div></div>
+        <div class="stat"><div id="usageStat" class="value">0%</div><div class="label">Auslastung</div></div>
+      </div>
+
+      <div class="canvas-wrap">
+        <div id="trailer" ondragover="event.preventDefault()" ondrop="dropOnTrailer(event)">
+          <div class="trailer-label">Ladefläche</div>
+        </div>
+        <div class="legend">
+          <span>Raster: 25 cm</span>
+          <span>Drag & Drop: Pakettyp links greifen und auf die Fläche ziehen</span>
+          <span>Klick auf Paket: auswählen</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const SCALE = 100; // 1 m = 100 px
+    const GRID_CM = 25;
+    const GRID_PX = GRID_CM; // weil 100 cm = 100 px
+
+    let packageTemplates = [];
+    let placedBoxes = [];
+    let selectedId = null;
+    let dragState = null;
+
+    const colors = [
+      'rgba(56,189,248,.78)',
+      'rgba(34,197,94,.78)',
+      'rgba(251,191,36,.78)',
+      'rgba(168,85,247,.78)',
+      'rgba(244,114,182,.78)',
+      'rgba(45,212,191,.78)',
+      'rgba(251,146,60,.78)'
+    ];
+
+    function trailerMeters() {
+      return {
+        length: Number(document.getElementById('trailerLength').value) || 4,
+        width: Number(document.getElementById('trailerWidth').value) || 2.5,
+      };
+    }
+
+    function trailerPx() {
+      const t = trailerMeters();
+      return { width: t.length * SCALE, height: t.width * SCALE };
+    }
+
+    function updateTrailer() {
+      const trailer = document.getElementById('trailer');
+      const tpx = trailerPx();
+      trailer.style.width = `${tpx.width}px`;
+      trailer.style.height = `${tpx.height}px`;
+      validateAllBoxes();
+      renderPlacedBoxes();
+      updateStats();
+    }
+
+    function addPackageTemplate() {
+      const name = document.getElementById('boxName').value.trim() || 'Paket';
+      const count = Math.max(1, Number(document.getElementById('boxCount').value) || 1);
+      const lengthCm = Math.max(1, Number(document.getElementById('boxLength').value) || 1);
+      const widthCm = Math.max(1, Number(document.getElementById('boxWidth').value) || 1);
+      const id = crypto.randomUUID();
+
+      packageTemplates.push({
+        id,
+        name,
+        count,
+        lengthCm,
+        widthCm,
+        color: colors[packageTemplates.length % colors.length]
+      });
+      renderPackageList();
+    }
+
+    function renderPackageList() {
+      const list = document.getElementById('packageList');
+      list.innerHTML = '';
+
+      packageTemplates.forEach((pkg) => {
+        const div = document.createElement('div');
+        div.className = 'package-template';
+        div.draggable = true;
+        div.ondragstart = (event) => {
+          event.dataTransfer.setData('text/plain', pkg.id);
+        };
+        div.innerHTML = `
+          <div>
+            <div class="package-title">${escapeHtml(pkg.name)} × ${pkg.count}</div>
+            <div class="package-meta">${pkg.lengthCm} × ${pkg.widthCm} cm</div>
+          </div>
+          <button class="small-button danger" onclick="removeTemplate('${pkg.id}')">X</button>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function removeTemplate(id) {
+      packageTemplates = packageTemplates.filter(p => p.id !== id);
+      renderPackageList();
+    }
+
+    function dropOnTrailer(event) {
+      event.preventDefault();
+      const templateId = event.dataTransfer.getData('text/plain');
+      const pkg = packageTemplates.find(p => p.id === templateId);
+      if (!pkg) return;
+
+      const trailer = document.getElementById('trailer');
+      const rect = trailer.getBoundingClientRect();
+      const x = snap(event.clientX - rect.left);
+      const y = snap(event.clientY - rect.top);
+
+      placeBox({
+        templateId: pkg.id,
+        name: pkg.name,
+        lengthCm: pkg.lengthCm,
+        widthCm: pkg.widthCm,
+        x,
+        y,
+        color: pkg.color,
+        rotated: false,
+      });
+    }
+
+    function placeBox(data) {
+      const box = {
+        id: crypto.randomUUID(),
+        ...data,
+      };
+      placedBoxes.push(box);
+      selectedId = box.id;
+      validateAllBoxes();
+      renderPlacedBoxes();
+      updateStats();
+    }
+
+    function renderPlacedBoxes() {
+      const trailer = document.getElementById('trailer');
+      [...trailer.querySelectorAll('.placed-box')].forEach(el => el.remove());
+
+      placedBoxes.forEach(box => {
+        const el = document.createElement('div');
+        el.className = 'placed-box';
+        if (box.id === selectedId) el.classList.add('selected');
+        if (box.invalid) el.classList.add('invalid');
+        el.style.left = `${box.x}px`;
+        el.style.top = `${box.y}px`;
+        el.style.width = `${boxWidthPx(box)}px`;
+        el.style.height = `${boxHeightPx(box)}px`;
+        el.style.background = box.invalid ? 'rgba(239,68,68,.78)' : box.color;
+        el.innerHTML = `${escapeHtml(box.name)}<br>${box.rotated ? box.widthCm + '×' + box.lengthCm : box.lengthCm + '×' + box.widthCm} cm`;
+
+        el.addEventListener('mousedown', (event) => startMove(event, box.id));
+        el.addEventListener('click', (event) => {
+          event.stopPropagation();
+          selectedId = box.id;
+          renderPlacedBoxes();
+        });
+        trailer.appendChild(el);
+      });
+
+      trailer.onclick = () => {
+        selectedId = null;
+        renderPlacedBoxes();
+      };
+    }
+
+    function startMove(event, id) {
+      event.preventDefault();
+      event.stopPropagation();
+      selectedId = id;
+      const box = placedBoxes.find(b => b.id === id);
+      dragState = {
+        id,
+        startMouseX: event.clientX,
+        startMouseY: event.clientY,
+        startX: box.x,
+        startY: box.y,
+      };
+      document.addEventListener('mousemove', moveSelected);
+      document.addEventListener('mouseup', stopMove);
+      renderPlacedBoxes();
+    }
+
+    function moveSelected(event) {
+      if (!dragState) return;
+      const box = placedBoxes.find(b => b.id === dragState.id);
+      box.x = snap(dragState.startX + (event.clientX - dragState.startMouseX));
+      box.y = snap(dragState.startY + (event.clientY - dragState.startMouseY));
+      validateAllBoxes();
+      renderPlacedBoxes();
+      updateStats();
+    }
+
+    function stopMove() {
+      dragState = null;
+      document.removeEventListener('mousemove', moveSelected);
+      document.removeEventListener('mouseup', stopMove);
+    }
+
+    function rotateSelected() {
+      const box = placedBoxes.find(b => b.id === selectedId);
+      if (!box) return;
+      box.rotated = !box.rotated;
+      validateAllBoxes();
+      renderPlacedBoxes();
+      updateStats();
+    }
+
+    function deleteSelected() {
+      if (!selectedId) return;
+      placedBoxes = placedBoxes.filter(b => b.id !== selectedId);
+      selectedId = null;
+      renderPlacedBoxes();
+      updateStats();
+    }
+
+    function clearPlaced() {
+      placedBoxes = [];
+      selectedId = null;
+      renderPlacedBoxes();
+      updateStats();
+    }
+
+    function autoPack() {
+      const items = [];
+      packageTemplates.forEach(pkg => {
+        for (let i = 0; i < pkg.count; i++) {
+          items.push({ ...pkg });
+        }
+      });
+
+      items.sort((a, b) => (b.lengthCm * b.widthCm) - (a.lengthCm * a.widthCm));
+
+      const tpx = trailerPx();
+      const packed = [];
+      const unpacked = [];
+
+      for (const item of items) {
+        const candidates = [
+          { rotated: false, w: item.lengthCm, h: item.widthCm },
+          { rotated: true, w: item.widthCm, h: item.lengthCm },
+        ];
+
+        let placed = false;
+
+        for (let y = 0; y <= tpx.height && !placed; y += GRID_PX) {
+          for (let x = 0; x <= tpx.width && !placed; x += GRID_PX) {
+            for (const c of candidates) {
+              const candidate = {
+                id: crypto.randomUUID(),
+                templateId: item.id,
+                name: item.name,
+                lengthCm: item.lengthCm,
+                widthCm: item.widthCm,
+                x,
+                y,
+                color: item.color,
+                rotated: c.rotated,
+              };
+              if (fits(candidate, packed, tpx)) {
+                packed.push(candidate);
+                placed = true;
+                break;
+              }
+            }
+          }
+        }
+
+        if (!placed) unpacked.push(item);
+      }
+
+      placedBoxes = packed;
+      selectedId = null;
+      validateAllBoxes();
+      renderPlacedBoxes();
+      updateStats();
+
+      if (unpacked.length) {
+        alert(`${unpacked.length} Paket(e) konnten nicht platziert werden. Ladefläche ist rechnerisch voll oder die Maße passen nicht.`);
+      }
+    }
+
+    function fits(candidate, boxes, tpx) {
+      const cw = boxWidthPx(candidate);
+      const ch = boxHeightPx(candidate);
+
+      if (candidate.x < 0 || candidate.y < 0 || candidate.x + cw > tpx.width || candidate.y + ch > tpx.height) {
+        return false;
+      }
+
+      return !boxes.some(other => overlaps(candidate, other));
+    }
+
+    function validateAllBoxes() {
+      const tpx = trailerPx();
+      placedBoxes.forEach(box => {
+        box.invalid = !fits(box, placedBoxes.filter(b => b.id !== box.id), tpx);
+      });
+    }
+
+    function overlaps(a, b) {
+      return !(
+        a.x + boxWidthPx(a) <= b.x ||
+        b.x + boxWidthPx(b) <= a.x ||
+        a.y + boxHeightPx(a) <= b.y ||
+        b.y + boxHeightPx(b) <= a.y
+      );
+    }
+
+    function boxWidthPx(box) {
+      return box.rotated ? box.widthCm : box.lengthCm;
+    }
+
+    function boxHeightPx(box) {
+      return box.rotated ? box.lengthCm : box.widthCm;
+    }
+
+    function snap(value) {
+      return Math.max(0, Math.round(value / GRID_PX) * GRID_PX);
+    }
+
+    function updateStats() {
+      const t = trailerMeters();
+      const totalArea = t.length * t.width;
+      const usedArea = placedBoxes.reduce((sum, b) => sum + (b.lengthCm * b.widthCm / 10000), 0);
+      const usage = totalArea > 0 ? Math.round((usedArea / totalArea) * 100) : 0;
+
+      document.getElementById('trailerSizeStat').textContent = `${t.length.toFixed(1)} × ${t.width.toFixed(1)} m`;
+      document.getElementById('areaStat').textContent = `${totalArea.toFixed(2)} m²`;
+      document.getElementById('usedStat').textContent = `${usedArea.toFixed(2)} m²`;
+      document.getElementById('usageStat').textContent = `${usage}%`;
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    addPackageTemplate();
+    document.getElementById('boxName').value = 'Großer Karton';
+    document.getElementById('boxLength').value = 80;
+    document.getElementById('boxWidth').value = 60;
+    document.getElementById('boxCount').value = 2;
+    addPackageTemplate();
+    document.getElementById('boxName').value = 'Kleines Paket';
+    document.getElementById('boxLength').value = 40;
+    document.getElementById('boxWidth').value = 30;
+    document.getElementById('boxCount').value = 4;
+    addPackageTemplate();
+    document.getElementById('boxName').value = 'Umzugskarton';
+    document.getElementById('boxLength').value = 60;
+    document.getElementById('boxWidth').value = 40;
+    document.getElementById('boxCount').value = 1;
+    updateTrailer();
+  </script>
 </body>
 </html>
